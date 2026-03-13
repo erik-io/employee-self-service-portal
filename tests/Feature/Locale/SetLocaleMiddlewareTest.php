@@ -98,6 +98,6 @@ class SetLocaleMiddlewareTest extends TestCase
 
         $response = $this->get('/');
 
-        $this->assertEquals('de', App::getLocale());
+        $this->assertEquals($appLocale, App::getLocale());
     }
 }

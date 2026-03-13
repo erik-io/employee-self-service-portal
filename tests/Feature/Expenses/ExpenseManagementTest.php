@@ -6,7 +6,9 @@ namespace Tests\Feature\Expenses;
 
 use App\Models\Expense;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Number;
 use Tests\TestCase;
 
 class ExpenseManagementTest extends TestCase
@@ -341,7 +343,7 @@ class ExpenseManagementTest extends TestCase
             ->get(route('expenses.management.history', ['status' => Expense::STATUS_APPROVED]))
             ->assertOk()
             ->assertViewHas('expenses', function ($paginator) {
-                return collect($paginator->items())->every(fn ($expense) => $expense->status === Expense::STATUS_APPROVED);
+                return collect($paginator->items())->every(fn($expense) => $expense->status === Expense::STATUS_APPROVED);
             });
 
         // Filter only pending
@@ -349,7 +351,7 @@ class ExpenseManagementTest extends TestCase
             ->get(route('expenses.management.history', ['status' => Expense::STATUS_PENDING]))
             ->assertOk()
             ->assertViewHas('expenses', function ($paginator) {
-                return collect($paginator->items())->every(fn ($expense) => $expense->status === Expense::STATUS_PENDING);
+                return collect($paginator->items())->every(fn($expense) => $expense->status === Expense::STATUS_PENDING);
             });
 
         // Filter only rejected
@@ -357,7 +359,7 @@ class ExpenseManagementTest extends TestCase
             ->get(route('expenses.management.history', ['status' => Expense::STATUS_REJECTED]))
             ->assertOk()
             ->assertViewHas('expenses', function ($paginator) {
-                return collect($paginator->items())->every(fn ($expense) => $expense->status === Expense::STATUS_REJECTED);
+                return collect($paginator->items())->every(fn($expense) => $expense->status === Expense::STATUS_REJECTED);
             });
     }
 
@@ -681,10 +683,14 @@ class ExpenseManagementTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('expenses.management.show', $expense));
 
+        $expectedLocale = app()->getLocale();
+        $expectedAmount = Number::currency(123.45, in: 'EUR', locale: $expectedLocale);
+        $expectedExpenseDate = Carbon::parse('2023-01-15')->translatedFormat('l, d F Y');
+
         $response->assertOk();
         $response->assertSee('John Doe');
-        $response->assertSee('123,45');
-        $response->assertSee('15.01.2023');
+        $response->assertSee($expectedAmount);
+        $response->assertSee($expectedExpenseDate);
         $response->assertSee('CC-SHOW-TEST');
         $response->assertSee(__('Pending'));
     }

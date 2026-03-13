@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
     use Notifiable;
     use HasRoles;
@@ -27,6 +28,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'hire_date',
+        'weekly_working_days',
+        'has_severe_disability'
     ];
 
     /**
@@ -50,6 +54,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all leave requests for the user.
+     *
+     * @return HasMany
+     */
+    public function leaveRequests(): HasMany
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -59,6 +73,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'hire_date' => 'date',
+            'weekly_working_days' => 'integer',
+            'has_severe_disability' => 'boolean',
         ];
     }
 }
