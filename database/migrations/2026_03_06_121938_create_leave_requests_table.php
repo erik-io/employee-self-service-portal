@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('rejection_reason')->nullable();
-            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('reviewer_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }
