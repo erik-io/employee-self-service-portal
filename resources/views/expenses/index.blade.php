@@ -139,66 +139,39 @@
                             </thead>
 
                             @forelse ($expenses as $expense)
-                                <tbody x-data="{ open: false }"
-                                       class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150">
-                                    {{-- ID --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $expense->id }}
-                                    </td>
-                                    {{-- Submission Date --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">
-                                        {{ $expense->created_at?->isoFormat('L') }}
-                                    </td>
-                                    {{-- Expense Date --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">
-                                        {{ $expense->expense_date?->isoFormat('L') }}
-                                    </td>
-                                    {{-- Cost Center --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100 w-40">
-                                        @php($costCenter = $expense->cost_center ?? __('messages.general.unknown_cost_center'))
-                                        <span class="block max-w-[9rem] truncate"
-                                              title="{{ $costCenter }}">{{ $costCenter }}</span>
-                                    </td>
-                                    {{-- Amount --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-gray-900 dark:text-gray-100">
-                                        <x-money :amount="$expense->amount"/>
-                                    </td>
-                                    {{-- Status --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <x-expense-status :status="$expense->status"/>
-                                    </td>
-                                    {{-- Action Cell (Show/Hide Rejection Reason) --}}
-                                    <td class="px-3 py-4 text-center text-sm font-medium">
-                                        @if($expense->status == Expense::STATUS_REJECTED && $expense->rejection_comment !== null && $expense->rejection_comment !== '')
-                                            <button
-                                                @click="open = !open"
-                                                type="button"
-                                                class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200 transition duration-150 ease-in-out"
-                                                title="{{ __('View Reason') }}">
-                                                {{-- Icon changes style if open (optional visual feedback) --}}
-                                                <i class="fa-solid fa-comment-dots fa-lg"
-                                                   :class="{'text-gray-400': open}"></i>
-                                            </button>
-                                        @endif
-                                    </td>
-                                </tr>
-                                {{-- Rejection Comment (hidden by default) --}}
-                                @if($expense->status == Expense::STATUS_REJECTED && $expense->rejection_comment !== null)
-                                    <tr x-show="open" x-transition x-cloak>
-                                        <td colspan="7" class="p-0">
-                                            <div
-                                                class="p-4 bg-gray-50 dark:bg-gray-700 border-l-4 border-red-400 dark:border-red-600">
-                                                <h4 class="font-bold text-sm text-red-800 dark:text-red-300">{{ __('Rejection Comment') }}</h4>
-                                                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300 break-all hyphens-auto">
-                                                    {{-- Convert newlines to <br> tags and explicit handling of HTML attributes --}}
-                                                    {!! nl2br(e($expense->rejection_comment)) !!}
-                                                </p>
-                                            </div>
+                                <x-management.rejection-row
+                                    :reason="$expense->rejection_comment"
+                                    :colspan="7"
+                                    :title="__('Rejection Comment')"
+                                >
+                                    <x-slot:cells>
+                                        {{-- ID --}}
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            {{ $expense->id }}
                                         </td>
-                                    </tr>
-                                @endif
-                                </tbody>
+                                        {{-- Submission Date --}}
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">
+                                            {{ $expense->created_at?->isoFormat('L') }}
+                                        </td>
+                                        {{-- Expense Date --}}
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">
+                                            {{ $expense->expense_date?->isoFormat('L') }}
+                                        </td>
+                                        {{-- Cost Center --}}
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100 w-40">
+                                            @php($costCenter = $expense->cost_center ?? __('messages.general.unknown_cost_center'))
+                                            <span class="block max-w-[9rem] truncate" title="{{ $costCenter }}">{{ $costCenter }}</span>
+                                        </td>
+                                        {{-- Amount --}}
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-gray-900 dark:text-gray-100">
+                                            <x-money :amount="$expense->amount"/>
+                                        </td>
+                                        {{-- Status --}}
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <x-expense-status :status="$expense->status"/>
+                                        </td>
+                                    </x-slot:cells>
+                                </x-management.rejection-row>
                             @empty
                                 <tbody class="bg-white dark:bg-gray-800">
                                 <tr>

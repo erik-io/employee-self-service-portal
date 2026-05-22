@@ -11,9 +11,9 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg max-w-xl mx-auto">
                 {{-- Initialize Alpine data context for the form inputs --}}
-                <div class="p-6 text-gray-900 dark:text-gray-100"
+                <div class="text-gray-900 dark:text-gray-100"
                      x-data="{
                          amountInput: '{{ old('amount', '') }}',
                          dateInput: '{{ old('expense_date', '') }}',
@@ -105,7 +105,11 @@
                         </div>
 
                         {{-- Submit Button --}}
-                        <div class="flex items-center justify-end mt-4">
+                        <div class="flex items-center justify-between mt-4">
+                            <a href="{{ route('expenses.index') }}"
+                               class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 underline">
+                                {{ __('Cancel') }}
+                            </a>
                             <x-primary-button type="submit">
                                 {{ __('Submit') }}
                             </x-primary-button>

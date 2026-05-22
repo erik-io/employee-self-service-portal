@@ -337,12 +337,10 @@
     "Review": "Review",
     "No leave requests found.": "No leave requests found.",
     "Period": "Period",
-    "Type": "Type"
-    ,
+    "Type": "Type",
     "Leave Requests": "Leave Requests",
     "Team Capacity Check": "Team Capacity Check",
-    "No overlaps detected. The team is fully staffed during this period.": "No overlaps detected. The team is fully staffed during this period."
-    ,
+    "No overlaps detected. The team is fully staffed during this period.": "No overlaps detected. The team is fully staffed during this period.",
     "Vacation": "Vacation",
     "Sick Leave": "Sick Leave",
     "Unpaid Leave": "Unpaid Leave",
@@ -367,5 +365,8 @@
     "Many colleagues are away and capacity may be tight.": "Many colleagues are away and capacity may be tight.",
     "Capacity is critical or your request overlaps an approved absence.": "Capacity is critical or your request overlaps an approved absence.",
     "My Absences": "My Absences",
-    "New Absence": "New Absence"
+    "New Absence": "New Absence",
+    "All Leave Requests": "All Leave Requests",
+    "Open Leave Requests": "Open Leave Requests",
+    "Submit New Absence": "Submit New Absence"
 }

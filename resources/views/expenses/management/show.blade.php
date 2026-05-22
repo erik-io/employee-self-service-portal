@@ -147,86 +147,15 @@
                                     </div>
 
                                     {{-- Reject Confirmation Modal --}}
-                                    <x-modal :name="'confirm-rejection'">
-                                        <div class="p-6">
-                                            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                                {{ __('expenses.modal.rejection.title') }}
-                                            </h2>
-                                            <p class="mt-2 text-base text-gray-600 dark:text-gray-300">
-                                                {{ __('expenses.modal.rejection.body') }}
-                                            </p>
-
-                                            {{-- Dynamic Data Display (Rejection) --}}
-                                            <div
-                                                class="mt-4 space-y-2 text-sm text-gray-800 dark:text-gray-200 border-t border-b border-gray-200 dark:border-gray-600 py-4">
-                                                <div class="flex justify-between">
-                                                    <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Employee') }}:</span>
-                                                    <span
-                                                        class="font-bold">{{ $expense->user?->name ?? __('messages.general.unknown_user') }}</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Amount') }}:</span>
-                                                    <span class="font-bold">
-                                                        <x-money :amount="$expense->amount"/>
-                                                    </span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Date') }}:</span>
-                                                    <span
-                                                        class="font-bold">{{ $expense->expense_date?->isoFormat('L') }}</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Cost Center') }}:</span>
-                                                    <span
-                                                        class="font-bold">{{ $expense->cost_center ?? __('messages.general.unknown_cost_center') }}</span>
-                                                </div>
-                                            </div>
-
-                                            {{-- Rejection Comment Preview --}}
-                                            <div class="pt-2">
-                                                <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Comment') }}:</span>
-                                                <div
-                                                    class="mt-1 p-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-gray-800 dark:text-gray-200 whitespace-pre-line break-words"
-                                                    x-text="comment"></div>
-                                            </div>
-
-                                            <div class="mt-6 flex justify-end">
-                                                {{-- Cancel Button --}}
-                                                <x-secondary-button
-                                                    x-on:click="$dispatch('close-modal', 'confirm-rejection')">
-                                                    {{ __('Cancel') }}
-                                                </x-secondary-button>
-                                                {{-- Submit Button --}}
-                                                <x-danger-button type="button"
-                                                                 x-on:click="$refs.rejectForm.submit()"
-                                                                 class="ms-3">
-                                                    {{ __('Reject') }}
-                                                </x-danger-button>
-                                            </div>
-                                        </div>
-                                    </x-modal>
-                                </form>
-
-                                {{-- Approve Confirmation Modal --}}
-                                <x-modal :name="'confirm-approval'">
-                                    <form method="POST" action="{{ route('expenses.management.approve', $expense) }}"
-                                          class="p-6">
-                                        @csrf
-                                        @method('PATCH')
-                                        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                            {{ __('expenses.modal.approval.title') }}
-                                        </h2>
-                                        <p class="mt-2 text-base text-gray-600 dark:text-gray-300">
-                                            {{ __('expenses.modal.approval.body') }}
-                                        </p>
-
-                                        {{-- Dynamic Data Display (Approve) --}}
-                                        <div
-                                            class="mt-4 space-y-2 text-sm text-gray-800 dark:text-gray-200 border-t border-b border-gray-200 dark:border-gray-600 py-4">
+                                    <x-management.confirm-modal
+                                        name="confirm-rejection"
+                                        :title="__('expenses.modal.rejection.title')"
+                                        :body="__('expenses.modal.rejection.body')"
+                                    >
+                                        <x-slot:details>
                                             <div class="flex justify-between">
                                                 <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Employee') }}:</span>
-                                                <span
-                                                    class="font-bold">{{ $expense->user?->name ?? __('messages.general.unknown_user') }}</span>
+                                                <span class="font-bold">{{ $expense->user?->name ?? __('messages.general.unknown_user') }}</span>
                                             </div>
                                             <div class="flex justify-between">
                                                 <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Amount') }}:</span>
@@ -236,30 +165,74 @@
                                             </div>
                                             <div class="flex justify-between">
                                                 <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Date') }}:</span>
-                                                <span
-                                                    class="font-bold">{{ $expense->expense_date?->isoFormat('L') }}</span>
+                                                <span class="font-bold">{{ $expense->expense_date?->isoFormat('L') }}</span>
                                             </div>
                                             <div class="flex justify-between">
                                                 <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Cost Center') }}:</span>
-                                                <span
-                                                    class="font-bold">{{ $expense->cost_center ?? __('messages.general.unknown_cost_center') }}</span>
+                                                <span class="font-bold">{{ $expense->cost_center ?? __('messages.general.unknown_cost_center') }}</span>
                                             </div>
-                                        </div>
-
-                                        <div class="mt-6 flex justify-end">
-                                            {{-- Cancel Button --}}
+                                        </x-slot:details>
+                                        <x-slot:preview>
+                                            <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Comment') }}:</span>
+                                            <div
+                                                class="mt-1 p-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-gray-800 dark:text-gray-200 whitespace-pre-line break-words"
+                                                x-text="comment"></div>
+                                        </x-slot:preview>
+                                        <x-slot:actions>
                                             <x-secondary-button
-                                                x-on:click="$dispatch('close-modal', 'confirm-approval')">
+                                                x-on:click="$dispatch('close-modal', 'confirm-rejection')">
                                                 {{ __('Cancel') }}
                                             </x-secondary-button>
-                                            {{-- Submit Button --}}
+                                            <x-danger-button type="button"
+                                                             x-on:click="$refs.rejectForm.submit()"
+                                                             class="ms-3">
+                                                {{ __('Reject') }}
+                                            </x-danger-button>
+                                        </x-slot:actions>
+                                    </x-management.confirm-modal>
+                                </form>
+
+                                {{-- Approve Confirmation Modal --}}
+                                <x-management.confirm-modal
+                                    name="confirm-approval"
+                                    :title="__('expenses.modal.approval.title')"
+                                    :body="__('expenses.modal.approval.body')"
+                                >
+                                    <x-slot:details>
+                                        <div class="flex justify-between">
+                                            <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Employee') }}:</span>
+                                            <span class="font-bold">{{ $expense->user?->name ?? __('messages.general.unknown_user') }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Amount') }}:</span>
+                                            <span class="font-bold">
+                                                <x-money :amount="$expense->amount"/>
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Date') }}:</span>
+                                            <span class="font-bold">{{ $expense->expense_date?->isoFormat('L') }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('Cost Center') }}:</span>
+                                            <span class="font-bold">{{ $expense->cost_center ?? __('messages.general.unknown_cost_center') }}</span>
+                                        </div>
+                                    </x-slot:details>
+                                    <x-slot:actions>
+                                        <x-secondary-button
+                                            x-on:click="$dispatch('close-modal', 'confirm-approval')">
+                                            {{ __('Cancel') }}
+                                        </x-secondary-button>
+                                        <form method="POST" action="{{ route('expenses.management.approve', $expense) }}">
+                                            @csrf
+                                            @method('PATCH')
                                             <x-primary-button
                                                 class="ms-3 bg-green-600 hover:bg-green-700 focus:bg-green-700 active:bg-green-800 focus:ring-green-500">
                                                 {{ __('Yes, Approve') }}
                                             </x-primary-button>
-                                        </div>
-                                    </form>
-                                </x-modal>
+                                        </form>
+                                    </x-slot:actions>
+                                </x-management.confirm-modal>
                                 {{-- Show rejection comment if it's rejected --}}
                             @elseif ($expense->status == Expense::STATUS_REJECTED && $expense->rejection_comment !== null && $expense->rejection_comment !== '')
                                 <h3 class="text-lg font-medium text-red-900 dark:text-red-300">{{ __('Reason for Rejection') }}</h3>

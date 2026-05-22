@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
 {
+    public const MAX_REJECTION_REASON_LENGTH = 5000;
+
     protected $fillable = [
         'user_id',
         'absence_type_id',

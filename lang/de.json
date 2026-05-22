@@ -337,12 +337,10 @@
     "Review": "Prüfen",
     "No leave requests found.": "Keine Urlaubsanträge gefunden.",
     "Period": "Zeitraum",
-    "Type": "Art"
-    ,
+    "Type": "Art",
     "Leave Requests": "Abwesenheitsanträge",
     "Team Capacity Check": "Teamkapazitätsprüfung",
-    "No overlaps detected. The team is fully staffed during this period.": "Keine Überschneidungen festgestellt. Das Team ist in diesem Zeitraum vollständig besetzt."
-    ,
+    "No overlaps detected. The team is fully staffed during this period.": "Keine Überschneidungen festgestellt. Das Team ist in diesem Zeitraum vollständig besetzt.",
     "Vacation": "Urlaub",
     "Sick Leave": "Krankmeldung",
     "Unpaid Leave": "Unbezahlter Urlaub",
@@ -367,5 +365,8 @@
     "Many colleagues are away and capacity may be tight.": "Viele Kollegen sind abwesend, die Kapazität könnte knapp werden.",
     "Capacity is critical or your request overlaps an approved absence.": "Die Kapazität ist kritisch oder Ihr Antrag überschneidet sich mit einer genehmigten Abwesenheit.",
     "My Absences": "Meine Abwesenheiten",
-    "New Absence": "Neue Abwesenheit"
+    "New Absence": "Neue Abwesenheit",
+    "All Leave Requests": "Alle Abwesenheitsanträge",
+    "Open Leave Requests": "Offene Abwesenheitsanträge",
+    "Submit New Absence": "Neue Abwesenheit einreichen"
 }

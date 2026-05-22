@@ -2,13 +2,8 @@
     <x-slot name="header">
         <div>
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Absence Management') }}
+                {{ __('Submit New Absence') }}
             </h2>
-            <div class="mt-2 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                <span class="font-medium text-gray-700 dark:text-gray-300">{{ __('Remaining Vacation Days') }}:</span>
-                <span
-                    class="text-lg font-semibold text-indigo-600 dark:text-indigo-400">{{ $remainingDays ?? '--' }}</span>
-            </div>
         </div>
     </x-slot>
 
@@ -31,6 +26,10 @@
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                             {{ __('Provide the details for your new absence request.') }}
                         </p>
+                        <div class="mt-3 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                            <span class="font-medium text-gray-700 dark:text-gray-300">{{ __('Remaining Vacation Days') }}:</span>
+                            <span class="text-lg font-semibold text-indigo-600 dark:text-indigo-400">{{ $remainingDays ?? '--' }}</span>
+                        </div>
                     </div>
 
                     <form method="post" action="{{ route('leave-requests.store') }}" class="space-y-6"
@@ -131,13 +130,13 @@
                             </p>
                         </div>
 
-                        <div class="flex items-center gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                            <x-primary-button>{{ __('Submit Request') }}</x-primary-button>
-
-                            <a href="{{ route('dashboard') }}"
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                            <a href="{{ route('leave-requests.index') }}"
                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 underline">
                                 {{ __('Cancel') }}
                             </a>
+
+                            <x-primary-button>{{ __('Submit Request') }}</x-primary-button>
                         </div>
                     </form>
                 </div>

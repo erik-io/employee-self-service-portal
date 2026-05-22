@@ -86,6 +86,7 @@ Route::middleware(['auth', 'verified'])
             ->name('management.')
             ->group(function () {
                 Route::get('/', [LeaveRequestManagementController::class, 'index'])->name('index');
+                Route::get('/all', [LeaveRequestManagementController::class, 'history'])->name('history');
                 Route::get('/{leaveRequest}', [LeaveRequestManagementController::class, 'show'])->name('show');
                 Route::patch('/{leaveRequest}/approve', [LeaveRequestManagementController::class, 'approve'])->name('approve');
                 Route::patch('/{leaveRequest}/reject', [LeaveRequestManagementController::class, 'reject'])->name('reject');

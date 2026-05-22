@@ -15,15 +15,24 @@ class LeaveRequestManagementController extends Controller
 {
     public function __construct(
         private readonly LeaveRequestServiceInterface $leaveRequestService
-    ) {}
+    ) {
+    }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $leaveRequests = LeaveRequest::with(['user', 'absenceType'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $leaveRequests = $this->getPaginatedLeaveRequests($request, 'pending');
+        $pendingCount = LeaveRequest::where('status', 'pending')->count();
 
-        return view('leave-requests.management.index', compact('leaveRequests'));
+        return view('leave-requests.management.index', compact('leaveRequests', 'pendingCount'));
+    }
+
+    public function history(Request $request): View
+    {
+        $leaveRequests = $this->getPaginatedLeaveRequests($request, 'all');
+        $pendingCount = LeaveRequest::where('status', 'pending')->count();
+        $totalCount = LeaveRequest::count();
+
+        return view('leave-requests.management.history', compact('leaveRequests', 'pendingCount', 'totalCount'));
     }
 
     public function show(LeaveRequest $leaveRequest): View
@@ -53,12 +62,58 @@ class LeaveRequestManagementController extends Controller
     public function reject(Request $request, LeaveRequest $leaveRequest): RedirectResponse
     {
         $validated = $request->validate([
-            'rejection_reason' => ['required', 'string', 'min:5'],
+            'rejection_reason' => ['required', 'string', 'min:5', 'max:' . LeaveRequest::MAX_REJECTION_REASON_LENGTH],
         ]);
 
         $this->leaveRequestService->reject($leaveRequest, $request->user()->id, $validated['rejection_reason']);
 
         return redirect()->route('leave-requests.management.index')
             ->with('success', __('leave-requests.feedback.rejected'));
+    }
+
+    private function getPaginatedLeaveRequests(Request $request, string $statusScope)
+    {
+        $allowedSortBy = ['created_at', 'start_date', 'end_date', 'status', 'user_id', 'absence_type_id'];
+        $allowedPerPage = [10, 25, 50, 100];
+        $allowedStatuses = ['pending', 'approved', 'rejected'];
+
+        $defaultSortBy = 'created_at';
+        $defaultSortDirection = 'asc';
+
+        if ($statusScope === 'all') {
+            $defaultSortDirection = 'desc';
+        }
+
+        $sortBy = $request->query('sort_by', $defaultSortBy);
+        if (!in_array($sortBy, $allowedSortBy, true)) {
+            $sortBy = $defaultSortBy;
+        }
+
+        $sortDirection = $request->query('sort_direction', $defaultSortDirection);
+        if (!in_array($sortDirection, ['asc', 'desc'], true)) {
+            $sortDirection = $defaultSortDirection;
+        }
+
+        $perPage = (int)$request->query('per_page', 10);
+        if (!in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 10;
+        }
+
+        $query = LeaveRequest::with(['user', 'absenceType']);
+
+        if ($statusScope === 'pending') {
+            $query->where('status', 'pending');
+        }
+
+        if ($statusScope === 'all') {
+            $status = $request->query('status');
+            if ($status && in_array($status, $allowedStatuses, true)) {
+                $query->where('status', $status);
+            }
+        }
+
+        return $query->orderBy($sortBy, $sortDirection)
+            ->paginate($perPage)
+            ->withQueryString();
     }
 }

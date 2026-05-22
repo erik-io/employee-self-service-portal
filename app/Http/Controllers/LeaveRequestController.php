@@ -31,11 +31,38 @@ class LeaveRequestController extends Controller
     {
         $this->authorize('viewAny', LeaveRequest::class);
 
-        $leaveRequests = $request->user()
+        $allowedPerPage = [10, 25, 50, 100];
+        $allowedStatuses = ['pending', 'approved', 'rejected'];
+        $allowedSortBy = ['created_at', 'start_date', 'end_date', 'status', 'absence_type_id'];
+
+        $perPage = (int)$request->query('per_page', 10);
+        if (!in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 10;
+        }
+
+        $status = $request->query('status');
+
+        $sortBy = $request->query('sort_by', 'created_at');
+        if (!in_array($sortBy, $allowedSortBy, true)) {
+            $sortBy = 'created_at';
+        }
+
+        $sortDirection = $request->query('sort_direction', 'desc');
+        if (!in_array($sortDirection, ['asc', 'desc'], true)) {
+            $sortDirection = 'desc';
+        }
+
+        $query = $request->user()
             ->leaveRequests()
-            ->with(['absenceType', 'reviewer'])
-            ->latest('created_at')
-            ->paginate(10)
+            ->with(['absenceType', 'reviewer']);
+
+        if ($status && in_array($status, $allowedStatuses, true)) {
+            $query->where('status', $status);
+        }
+
+        $leaveRequests = $query
+            ->orderBy($sortBy, $sortDirection)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('leave-requests.index', compact('leaveRequests'));
@@ -104,7 +131,7 @@ class LeaveRequestController extends Controller
                         $formatEnd = Carbon::parse($overlap->end_date)->format('Y-m-d');
 
                         return back()->withErrors([
-                            'start_date' => "The requested period overlaps with an existing vacation from {$formatStart} to {$formatEnd}.",
+                            'start_date' => __('leave-requests.overlap_vacation', ['start' => $formatStart, 'end' => $formatEnd]),
                         ])->withInput();
                     }
                 }

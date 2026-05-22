@@ -39,8 +39,12 @@
                         {{ __('All Expenses') }}
                     </x-nav-link>
                     <x-nav-link :href="route('leave-requests.management.index')"
-                                :active="request()->routeIs('leave-requests.management.*')">
-                        {{ __('Manage Leave Requests') }}
+                                :active="request()->routeIs('leave-requests.management.index')">
+                        {{ __('Open Leave Requests') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('leave-requests.management.history')"
+                                :active="request()->routeIs('leave-requests.management.history')">
+                        {{ __('All Leave Requests') }}
                     </x-nav-link>
                     @endrole
                     @else
@@ -142,8 +146,12 @@
                 {{ __('All Expenses') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('leave-requests.management.index')"
-                                   :active="request()->routeIs('leave-requests.management.*')">
-                {{ __('Manage Leave Requests') }}
+                                   :active="request()->routeIs('leave-requests.management.index')">
+                {{ __('Open Leave Requests') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('leave-requests.management.history')"
+                                   :active="request()->routeIs('leave-requests.management.history')">
+                {{ __('All Leave Requests') }}
             </x-responsive-nav-link>
             @endrole
             @else
