@@ -44,6 +44,7 @@
                                     <option
                                         value="{{ $type->id }}"
                                         data-illness="{{ in_array($type->name, ['Sick Leave', 'Illness', 'Krankheit'], true) ? 'true' : 'false' }}"
+                                        data-deducts="{{ $type->deducts_vacation_days ? 'true' : 'false' }}"
                                         {{ old('absence_type_id') == $type->id ? 'selected' : '' }}>
                                         {{ __($type->name) }}
                                     </option>
@@ -56,14 +57,14 @@
                             <div>
                                 <x-input-label for="start_date" :value="__('Start Date')"/>
                                 <x-text-input id="start_date" name="start_date" type="date" class="mt-1 block w-full"
-                                              :value="old('start_date')" required/>
+                                              :value="old('start_date')" min="{{ now()->toDateString() }}" required/>
                                 <x-input-error class="mt-2" :messages="$errors->get('start_date')"/>
                             </div>
 
                             <div>
                                 <x-input-label for="end_date" :value="__('End Date')"/>
                                 <x-text-input id="end_date" name="end_date" type="date" class="mt-1 block w-full"
-                                              :value="old('end_date')" required/>
+                                              :value="old('end_date')" min="{{ now()->toDateString() }}" required/>
                                 <x-input-error class="mt-2" :messages="$errors->get('end_date')"/>
                             </div>
                         </div>
@@ -125,9 +126,6 @@
                                 </div>
                             </div>
 
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ __('Blocked status also applies if your request overlaps with an existing approved absence.') }}
-                            </p>
                         </div>
 
                         <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
@@ -144,23 +142,6 @@
         </div>
     </div>
 
-    @php
-        $statusCopy = [
-            'bg-green-500' => [
-                'heading' => __('Available'),
-                'text' => __('Team capacity is sufficient for this period.'),
-            ],
-            'bg-yellow-400' => [
-                'heading' => __('Warning'),
-                'text' => __('Many colleagues are away and capacity may be tight.'),
-            ],
-            'bg-red-500' => [
-                'heading' => __('Blocked'),
-                'text' => __('Capacity is critical or your request overlaps an approved absence.'),
-            ],
-        ];
-    @endphp
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const absenceTypeSelect = document.getElementById('absence_type_id');
@@ -175,18 +156,50 @@
             const heading = document.getElementById('status-heading');
             const text = document.getElementById('status-text');
 
-            const statusCopy = @json($statusCopy);
+            const remainingDays = {{ max(0, $remainingDays ?? 0) }};
+            const today = '{{ now()->toDateString() }}';
+            const holidays = @json($holidayDates ?? []);
+
+            function getSelectedOption() {
+                return absenceTypeSelect.options[absenceTypeSelect.selectedIndex];
+            }
+
+            function deductsVacation() {
+                return getSelectedOption()?.dataset.deducts === 'true';
+            }
+
+            function toLocalDateStr(d) {
+                return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            }
+
+            function addBusinessDays(startStr, n) {
+                const d = new Date(startStr + 'T00:00:00');
+                let count = 0;
+                while (count < n) {
+                    const day = d.getDay();
+                    const dateStr = toLocalDateStr(d);
+                    if (day !== 0 && day !== 6 && !holidays.includes(dateStr)) count++;
+                    if (count < n) d.setDate(d.getDate() + 1);
+                }
+                return toLocalDateStr(d);
+            }
+
+            function updateEndDateMax() {
+                if (deductsVacation() && startDateInput.value && remainingDays > 0) {
+                    endDateInput.max = addBusinessDays(startDateInput.value, remainingDays);
+                } else {
+                    endDateInput.removeAttribute('max');
+                }
+            }
 
             function updateMedicalFields() {
-                const selectedOption = absenceTypeSelect.options[absenceTypeSelect.selectedIndex];
-                const isIllness = selectedOption?.dataset.illness === 'true';
-
+                const isIllness = getSelectedOption()?.dataset.illness === 'true';
                 medicalToggle.classList.toggle('hidden', !isIllness);
-
                 if (!isIllness) {
                     medicalCheckbox.checked = false;
                     medicalUpload.classList.add('hidden');
                 }
+                updateEndDateMax();
             }
 
             function updateMedicalUpload() {
@@ -214,8 +227,8 @@
                     dot.classList.remove('bg-red-500', 'bg-yellow-400', 'bg-green-500');
                     dot.classList.add(data.status.color);
 
-                    heading.textContent = statusCopy[data.status.color]?.heading ?? data.status.heading;
-                    text.textContent = statusCopy[data.status.color]?.text ?? data.status.text;
+                    heading.textContent = data.status.heading;
+                    text.textContent = data.status.text;
                 } catch (error) {
                     console.error('Error fetching occupancy:', error);
                 }
@@ -226,7 +239,16 @@
 
             absenceTypeSelect.addEventListener('change', updateMedicalFields);
             medicalCheckbox.addEventListener('change', updateMedicalUpload);
-            startDateInput.addEventListener('change', updateOccupancy);
+
+            startDateInput.addEventListener('change', function () {
+                if (endDateInput.value && endDateInput.value < startDateInput.value) {
+                    endDateInput.value = '';
+                }
+                endDateInput.min = startDateInput.value || today;
+                updateEndDateMax();
+                updateOccupancy();
+            });
+
             endDateInput.addEventListener('change', updateOccupancy);
         });
     </script>

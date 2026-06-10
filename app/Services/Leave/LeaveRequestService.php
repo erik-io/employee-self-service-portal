@@ -55,7 +55,7 @@ class LeaveRequestService implements LeaveRequestServiceInterface
     {
         return LeaveRequest::with(['user', 'absenceType'])
             ->where('user_id', '!=', $excludeUserId)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', ['pending', 'approved', 'rejected'])
             ->where(function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('start_date', [$startDate, $endDate])
                     ->orWhereBetween('end_date', [$startDate, $endDate])

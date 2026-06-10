@@ -50,6 +50,13 @@ return [
     // Team capacity / occupancy
     'team_capacity_check' => 'Teamkapazitätsprüfung',
     'no_overlaps' => 'Keine Überschneidungen festgestellt. Das Team ist in diesem Zeitraum vollständig besetzt.',
+    'team_capacity_available' => 'Verfügbar',
+    'team_capacity_available_text' => 'Keine Überschneidungen festgestellt. Das Team ist in diesem Zeitraum vollständig besetzt.',
+    'team_capacity_caution' => 'Achtung',
+    'team_capacity_caution_text' => 'Die folgenden Teammitglieder haben ausstehende Abwesenheitsanträge in diesem Zeitraum.',
+    'team_capacity_warning' => 'Warnung',
+    'team_capacity_warning_text' => 'Die folgenden Teammitglieder haben genehmigte Abwesenheiten in diesem Zeitraum.',
+    'overlap_period' => 'Überschneidung: :start bis :end',
 
     'modal' => [
         'approval' => [
@@ -66,9 +73,11 @@ return [
     'feedback' => [
         'approved' => 'Abwesenheitsantrag erfolgreich genehmigt.',
         'rejected' => 'Abwesenheitsantrag erfolgreich abgelehnt.',
+        'already_approved' => 'Dieser Abwesenheitsantrag wurde bereits genehmigt.',
     ],
     'pending_summary' => ':pending ausstehend / :total gesamt',
     'my_absences_title' => 'Meine Abwesenheiten',
     'my_absences_summary' => ':total gesamt',
     'overlap_vacation' => 'Der angefragte Zeitraum überschneidet sich mit einem bestehenden Urlaub von :start bis :end.',
+    'overlap_absence' => 'Der angefragte Zeitraum überschneidet sich mit einer bestehenden Abwesenheit (:type) von :start bis :end.',
 ];

@@ -146,9 +146,9 @@
                                         default => __('Pending'),
                                     };
                                     $statusClasses = match ($request->status) {
-                                        'approved' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-                                        'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-                                        default => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+                                        'approved' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                                        'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+                                        default => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
                                     };
                                     $employeeName = $request->user?->name ?? __('messages.general.unknown_user');
                                 @endphp
@@ -175,7 +175,7 @@
                                         {{ __($request->absenceType->name) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses }}">
+                                        <span class="px-2 inline-flex text-sm font-medium leading-5 rounded-full {{ $statusClasses }}">
                                             {{ $statusLabel }}
                                         </span>
                                     </td>

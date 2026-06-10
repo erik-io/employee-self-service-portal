@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Leave;
 
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Illuminate\Support\Carbon;
 use Spatie\Holidays\Holidays;
 

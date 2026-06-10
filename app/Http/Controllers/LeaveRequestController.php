@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
+use Spatie\Holidays\Holidays;
 
 class LeaveRequestController extends Controller
 {
@@ -89,7 +90,7 @@ class LeaveRequestController extends Controller
             ->whereIn('status', ['pending', 'approved'])
             ->whereYear('start_date', $year)
             ->whereHas('absenceType', function ($query) {
-                $query->where('name', 'Vacation');
+                $query->where('deducts_vacation_days', true);
             })
             ->get();
 
@@ -103,7 +104,12 @@ class LeaveRequestController extends Controller
 
         $remainingDays = $totalEntitlement - $usedDays;
 
-        return view('leave-requests.create', compact('absenceTypes', 'remainingDays'));
+        $holidayDates = array_keys(Holidays::for('de')->getInRange(
+            now()->toDateString(),
+            now()->addYears(2)->toDateString()
+        ));
+
+        return view('leave-requests.create', compact('absenceTypes', 'remainingDays', 'holidayDates'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -119,7 +125,7 @@ class LeaveRequestController extends Controller
         $endDate = Carbon::parse($validated['end_date']);
 
         $absenceType = AbsenceType::find($validated['absence_type_id']);
-        $isVacation = $absenceType->name === 'Vacation';
+        $isVacation = (bool) $absenceType->deducts_vacation_days;
 
         $overlappingRequests = $this->leaveRequestService->getOverlappingRequests($user->id, $startDate, $endDate);
 
@@ -150,7 +156,7 @@ class LeaveRequestController extends Controller
                 ->whereIn('status', ['pending', 'approved'])
                 ->whereYear('start_date', $startDate->year)
                 ->whereHas('absenceType', function ($query) {
-                    $query->where('name', 'Vacation');
+                    $query->where('deducts_vacation_days', true);
                 })
                 ->get();
 
@@ -189,8 +195,37 @@ class LeaveRequestController extends Controller
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
         ]);
 
+        $user = $request->user();
         $startDate = Carbon::parse($request->start_date);
         $endDate = Carbon::parse($request->end_date);
+
+        $personalOverlap = LeaveRequest::with('absenceType')
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'approved'])
+            ->where('start_date', '<=', $endDate)
+            ->where('end_date', '>=', $startDate)
+            ->first();
+
+        if ($personalOverlap) {
+            $formatStart = Carbon::parse($personalOverlap->start_date)->format('Y-m-d');
+            $formatEnd = Carbon::parse($personalOverlap->end_date)->format('Y-m-d');
+            $typeName = $personalOverlap->absenceType->name ?? '';
+            $isVacation = $typeName === 'Vacation';
+
+            $overlapText = $isVacation
+                ? __('leave-requests.overlap_vacation', ['start' => $formatStart, 'end' => $formatEnd])
+                : __('leave-requests.overlap_absence', ['type' => __($typeName), 'start' => $formatStart, 'end' => $formatEnd]);
+
+            return response()->json([
+                'max_absences' => 0,
+                'status' => [
+                    'color' => 'bg-red-500',
+                    'border' => 'border-red-200',
+                    'heading' => __('leave-requests.team_capacity_warning'),
+                    'text' => $overlapText,
+                ],
+            ]);
+        }
 
         $maxAbsences = 0;
         $currentDate = $startDate->copy();
@@ -219,8 +254,8 @@ class LeaveRequestController extends Controller
             return [
                 'color' => 'bg-red-500',
                 'border' => 'border-red-200',
-                'heading' => __('High Occupancy'),
-                'text' => __('Many colleagues are absent. Approval might be difficult.'),
+                'heading' => __('leave-requests.team_capacity_warning'),
+                'text' => __('leave-requests.team_capacity_warning_text'),
             ];
         }
 
@@ -228,16 +263,16 @@ class LeaveRequestController extends Controller
             return [
                 'color' => 'bg-yellow-400',
                 'border' => 'border-yellow-200',
-                'heading' => __('Moderate Occupancy'),
-                'text' => __('Some colleagues are already away during this period.'),
+                'heading' => __('leave-requests.team_capacity_caution'),
+                'text' => __('leave-requests.team_capacity_caution_text'),
             ];
         }
 
         return [
             'color' => 'bg-green-500',
             'border' => 'border-green-200',
-            'heading' => __('Low Occupancy'),
-            'text' => __('No other absences recorded for this period.'),
+            'heading' => __('leave-requests.team_capacity_available'),
+            'text' => __('leave-requests.team_capacity_available_text'),
         ];
     }
 }

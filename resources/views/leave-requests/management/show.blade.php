@@ -8,9 +8,9 @@
         default => __('Pending'),
     };
     $statusClasses = match ($leaveRequest->status) {
-        'approved' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-        'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-        default => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+        'approved' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+        default => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     };
 @endphp
 <x-app-layout>
@@ -21,7 +21,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     @if ($errors->any() && !$errors->has('rejection_reason'))
@@ -94,39 +94,13 @@
                                 <div class="flex justify-between">
                                     <dt class="text-base font-medium text-gray-500 dark:text-gray-400 mr-1">{{ __('leave-requests.status') }}</dt>
                                     <dd class="text-base text-gray-900 dark:text-gray-100">
-                                        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full {{ $statusClasses }}">
+                                        <span class="px-2 inline-flex text-sm font-medium leading-5 rounded-full {{ $statusClasses }}">
                                             {{ $statusLabel }}
                                         </span>
                                     </dd>
                                 </div>
                             </dl>
 
-                            <div
-                                class="mt-6 p-4 bg-white dark:bg-gray-800 border-l-4 {{ $teamOverlaps->isNotEmpty() ? 'border-red-500' : 'border-green-500' }}">
-                                <h4 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                    {{ __('Team Capacity Check') }}
-                                </h4>
-
-                                @if ($teamOverlaps->isNotEmpty())
-                                    <p class="text-sm text-red-600 dark:text-red-400 mb-4 font-semibold">
-                                        {{ __('Warning: The following team members have approved or pending leave during this period.') }}
-                                    </p>
-                                    <ul class="space-y-2">
-                                        @foreach ($teamOverlaps as $overlap)
-                                            <li class="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-2 rounded">
-                                                <strong>{{ $overlap->user->name }}</strong>: {{ $overlap->absenceType->name }}
-                                                ({{ Carbon::parse($overlap->start_date)->format('Y-m-d') }}
-                                                to {{ Carbon::parse($overlap->end_date)->format('Y-m-d') }}) -
-                                                <em>{{ ucfirst($overlap->status) }}</em>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <p class="text-sm text-green-600 dark:text-green-400 font-semibold">
-                                        {{ __('No overlaps detected. The team is fully staffed during this period.') }}
-                                    </p>
-                                @endif
-                            </div>
                         </div>
 
                         <div x-data="{
@@ -292,12 +266,98 @@
                                 <div
                                     class="mt-2 p-4 bg-gray-50 dark:bg-gray-700 border-l-4 border-green-400 dark:border-green-600">
                                     <p class="text-base text-gray-700 dark:text-gray-300">
-                                        {{ __('This leave request has already been approved.') }}
+                                        {{ __('leave-requests.feedback.already_approved') }}
                                     </p>
                                 </div>
                             @endif
                         </div>
                     </div>
+
+                </div>
+            </div>
+
+            {{-- Team Capacity Check --}}
+            @php
+                $hasApprovedOverlap = $teamOverlaps->where('status', 'approved')->isNotEmpty();
+                $hasPendingOverlap  = $teamOverlaps->where('status', 'pending')->isNotEmpty();
+
+                if ($hasApprovedOverlap) {
+                    $capacityStatus     = 'warning';
+                    $capacityBorder     = 'border-red-500';
+                    $capacityBadge      = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                    $capacityLabel      = __('leave-requests.team_capacity_warning');
+                    $capacityText       = __('leave-requests.team_capacity_warning_text');
+                } elseif ($hasPendingOverlap) {
+                    $capacityStatus     = 'caution';
+                    $capacityBorder     = 'border-yellow-500';
+                    $capacityBadge      = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+                    $capacityLabel      = __('leave-requests.team_capacity_caution');
+                    $capacityText       = __('leave-requests.team_capacity_caution_text');
+                } else {
+                    $capacityStatus     = 'available';
+                    $capacityBorder     = 'border-green-500';
+                    $capacityBadge      = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+                    $capacityLabel      = __('leave-requests.team_capacity_available');
+                    $capacityText       = __('leave-requests.team_capacity_available_text');
+                }
+            @endphp
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border-l-4 {{ $capacityBorder }}">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                            {{ __('leave-requests.team_capacity_check') }}
+                        </h4>
+                        <span class="px-2 inline-flex text-sm font-medium leading-5 rounded-full {{ $capacityBadge }}">
+                            {{ $capacityLabel }}
+                        </span>
+                    </div>
+
+                    @if ($teamOverlaps->isEmpty())
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ $capacityText }}
+                        </p>
+                    @else
+                        @if ($capacityStatus !== 'available')
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                {{ $capacityText }}
+                            </p>
+                        @endif
+                        <ul class="space-y-2">
+                            @foreach ($teamOverlaps as $overlap)
+                                @php
+                                    $reqStart   = Carbon::parse($leaveRequest->start_date);
+                                    $reqEnd     = Carbon::parse($leaveRequest->end_date);
+                                    $ovStart    = Carbon::parse($overlap->start_date);
+                                    $ovEnd      = Carbon::parse($overlap->end_date);
+                                    $overlapStart = $ovStart->gt($reqStart) ? $ovStart : $reqStart;
+                                    $overlapEnd   = $ovEnd->lt($reqEnd) ? $ovEnd : $reqEnd;
+                                    $overlapPill = match($overlap->status) {
+                                        'approved' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                                        'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+                                        default    => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+                                    };
+                                @endphp
+                                <li class="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded flex flex-wrap items-center gap-2">
+                                    <strong>{{ $overlap->user->name }}</strong>
+                                    <span class="text-gray-500 dark:text-gray-400">–</span>
+                                    {{ __($overlap->absenceType->name) }}
+                                    <span class="text-gray-500 dark:text-gray-400">
+                                        ({{ $ovStart->locale(app()->getLocale())->isoFormat('L') }}
+                                        – {{ $ovEnd->locale(app()->getLocale())->isoFormat('L') }})
+                                    </span>
+                                    <span class="px-2 inline-flex text-xs font-medium leading-5 rounded-full {{ $overlapPill }}">
+                                        {{ __(ucfirst($overlap->status)) }}
+                                    </span>
+                                    <span class="w-full mt-1 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                        {{ __('leave-requests.overlap_period', [
+                                            'start' => $overlapStart->locale(app()->getLocale())->isoFormat('L'),
+                                            'end'   => $overlapEnd->locale(app()->getLocale())->isoFormat('L'),
+                                        ]) }}
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
             </div>
         </div>

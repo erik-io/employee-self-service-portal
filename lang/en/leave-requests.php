@@ -26,7 +26,7 @@ return [
     'days_remaining' => 'Days Remaining',
     'submitted_on' => 'Submitted On',
     'reviewer' => 'Reviewer',
-    'rejection_reason' => 'Rejection Reason',
+    'rejection_reason' => 'Reason for Rejection',
     'back_to_requests' => 'Back to Requests',
     'no_leave_requests_yet' => 'You have not submitted any leave requests yet.',
 
@@ -50,6 +50,13 @@ return [
     // Team capacity / occupancy
     'team_capacity_check' => 'Team Capacity Check',
     'no_overlaps' => 'No overlaps detected. The team is fully staffed during this period.',
+    'team_capacity_available' => 'Available',
+    'team_capacity_available_text' => 'No overlaps detected. The team is fully staffed during this period.',
+    'team_capacity_caution' => 'Caution',
+    'team_capacity_caution_text' => 'The following team members have pending leave requests during this period.',
+    'team_capacity_warning' => 'Warning',
+    'team_capacity_warning_text' => 'The following team members have approved leave during this period.',
+    'overlap_period' => 'Overlap: :start to :end',
 
     'modal' => [
         'approval' => [
@@ -66,10 +73,12 @@ return [
     'feedback' => [
         'approved' => 'Leave request approved successfully.',
         'rejected' => 'Leave request rejected successfully.',
+        'already_approved' => 'This leave request has already been approved.',
     ],
 
     'pending_summary' => ':pending pending / :total total',
     'my_absences_title' => 'My Absences',
     'my_absences_summary' => ':total total requests',
     'overlap_vacation' => 'The requested period overlaps with an existing vacation from :start to :end.',
+    'overlap_absence' => 'The requested period overlaps with an existing absence (:type) from :start to :end.',
 ];
